@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { Chat } from './containers/Chat';
+
 
 function App() {
-  return <h1>App</h1>;
+  return <Chat />;
 }
 
 export default App;
