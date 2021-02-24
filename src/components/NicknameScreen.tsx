@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useLayoutEffect, useRef } from 'react';
+import { useInput } from '../hooks/useInput';
 
 interface Props {
   onEnter: (nick: string) => void;
@@ -6,27 +7,17 @@ interface Props {
 
 export const NicknameScreen: FC<Props> = ({ onEnter }) => {
   const nickNameInputRef = useRef<HTMLInputElement>(null);
-  const [nickname, setNickname] = useState('');
 
   useLayoutEffect(() => {
     nickNameInputRef.current!.focus();
   }, [nickNameInputRef]);
 
-  const handleNicknameChange = useCallback(
-    ({ target: { value } }) => setNickname(value),
-    []
-  );
-
-  const handleEnterDown = useCallback(({ key }) => {
-    if (key === 'Enter') {
-      onEnter(nickname);
-    }
-  }, [onEnter, nickname]);
-
   const handleNicknameInputFocus = useCallback(
     () => nickNameInputRef.current!.focus(),
     [nickNameInputRef]
   );
+
+  const { value: nickname, handleChange, handleEnterDown } = useInput(onEnter);
 
   return (
     <div
@@ -40,7 +31,7 @@ export const NicknameScreen: FC<Props> = ({ onEnter }) => {
           ref={nickNameInputRef}
           className='text-center text-lg focus:outline-none'
           value={nickname}
-          onChange={handleNicknameChange}
+          onChange={handleChange}
           onKeyDown={handleEnterDown}
         />
       </div>
