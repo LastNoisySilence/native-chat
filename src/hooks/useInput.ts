@@ -13,6 +13,7 @@ export const useInput = (onEnter: (value: string) => void) => {
     if (key === 'Enter') {
       if ((value || '').trim()) {
         onEnter(value);
+        setValue('');
       } else {
         setError('Can\'t be empty')
       }

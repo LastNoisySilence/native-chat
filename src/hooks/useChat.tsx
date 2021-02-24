@@ -109,10 +109,10 @@ export const useChat: UseChatParams = (nickname: string, address: string, { onMe
     socket?.send(
       createAction({
         type: ActionTypes.NEW_MESSAGE,
-        payload: { username: nickname, message }
+        payload: message
       })
     );
-  }, [socket, nickname]);
+  }, [socket]);
 
   return { state, socket, handleCreateMessage };
 };
