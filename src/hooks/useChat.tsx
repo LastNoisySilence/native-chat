@@ -1,6 +1,10 @@
 import React, { FC, useCallback, useEffect, useReducer, useState } from 'react';
 import produce from 'immer';
+
 import { InfoMessage } from '../components/InfoMessage';
+import { UserMessage } from '../components/UserMessage';
+
+import { getRandomColor } from '../utils/getRandomColor';
 
 enum ActionTypes {
   ADD_USER = 'add user',
@@ -33,51 +37,89 @@ const readAction = (data: string) => {
   return action && JSON.parse(action);
 };
 
-const initialState: Array<FC> = [];
+interface InitialState {
+  colors: { [key: string]: string };
+  typings: { [key: string]: FC; };
+  messages: Array<FC>;
+}
 
-const reducer = (state: Array<FC>, { type, payload }: Action) => {
+const initialState: InitialState = {
+  colors: {},
+  typings: {},
+  messages: []
+};
+
+const reducer = (state: InitialState, { type, payload }: Action) => {
   switch (type) {
+    case ActionTypes.LOGIN: {
+      const { numUsers } = payload as UserCountPayload;
+
+      return produce(state, draft => {
+        draft.messages.push(() => <InfoMessage text={ `Welcome to Very Native Socket Chat` }/>);
+        draft.messages.push(() => <InfoMessage text={ `there are ${numUsers} participants` }/>);
+
+        return draft;
+      });
+    }
     case ActionTypes.USER_JOINED:
     case ActionTypes.USER_LEFT: {
       return produce(state, draft => {
         const { username, numUsers } = payload as UserNamePayload & UserCountPayload;
 
-        draft.push(() => <InfoMessage text={ `${username} ${type === ActionTypes.USER_JOINED ? 'joined' : 'left'}` }/>);
-        draft.push(() => <InfoMessage text={ `there are ${numUsers} participants` }/>);
+        draft.messages.push(() => <InfoMessage text={ `${username} ${type === ActionTypes.USER_JOINED ? 'joined' : 'left'}` }/>);
+        draft.messages.push(() => <InfoMessage text={ `there are ${numUsers} participants` }/>);
+
         return draft
       });
+    }
+    case ActionTypes.TYPING:
+    case ActionTypes.NEW_MESSAGE: {
+      const { username, message } = payload as UserNamePayload & MessagePayload;
+
+      return produce(state, draft => {
+        let nicknameColor = state.colors[username];
+
+        if (!nicknameColor) {
+          draft.colors[username] = nicknameColor = getRandomColor();
+        }
+
+        if (type === ActionTypes.NEW_MESSAGE) {
+          draft.messages.push(() => <UserMessage nickname={username} message={message} nicknameColor={ nicknameColor }/>);
+        } else {
+          const Component = () => <UserMessage nickname={username} nicknameColor={ nicknameColor } isTyping/>;
+
+          draft.typings[username] = Component;
+          draft.messages.push(Component);
+        }
+
+        return draft;
+      })
+    }
+    case ActionTypes.STOP_TYPING: {
+      const { username } = payload as UserNamePayload;
+
+      return produce(state, draft => {
+        draft.messages = state.messages.filter(filter => filter !== state.typings[username]);
+
+        return draft;
+      })
     }
     default: return state;
   }
 };
 
-type UseChatParams = (
+type UseChat = (
   nickname: string,
-  address: string,
-  options?: {
-    onMessage?: (event: Event) => void;
-    onOpen?: (event: Event) => void;
-  }
+  address: string
 ) => {
-  state: typeof initialState;
-  socket: WebSocket | null;
+  state: InitialState;
   handleCreateMessage: (message: string) => void;
+  handleTyping: (isTyping: boolean) => void;
 };
 
-export const useChat: UseChatParams = (nickname: string, address: string, { onMessage, onOpen } = {}) => {
+export const useChat: UseChat = (nickname: string, address: string) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  const handleMessage = useCallback((event) => {
-    const action = readAction(event.data);
-    onMessage?.(event);
-
-    if (action) {
-      const [type, payload] = action;
-
-      dispatch({ type, payload });
-    }
-  }, [onMessage, dispatch]);
 
   useEffect(() => {
     if (nickname) {
@@ -85,13 +127,19 @@ export const useChat: UseChatParams = (nickname: string, address: string, { onMe
 
       setSocket(ws);
 
-      ws.onopen = event => {
-        onOpen?.(event);
+      ws.onopen = () => {
         ws.send(createAction({ type: ActionTypes.ADD_USER, payload: nickname }));
-        dispatch({ type: ActionTypes.LOGIN });
       };
 
-      ws.onmessage = handleMessage;
+      ws.onmessage = ({ data }) => {
+        const action = readAction(data);
+
+        if (action) {
+          const [type, payload] = action;
+
+          dispatch({ type, payload });
+        }
+      };
 
       const interval = setInterval(
         () => ws.send('2'),
@@ -103,7 +151,7 @@ export const useChat: UseChatParams = (nickname: string, address: string, { onMe
         clearInterval(interval);
       };
     }
-  }, [nickname, address, handleMessage, onOpen]);
+  }, [nickname, address]);
 
   const handleCreateMessage = useCallback((message: string) => {
     socket?.send(
@@ -112,7 +160,23 @@ export const useChat: UseChatParams = (nickname: string, address: string, { onMe
         payload: message
       })
     );
-  }, [socket]);
+    dispatch({
+      type: ActionTypes.NEW_MESSAGE,
+      payload: { message, username: nickname }
+    });
+  }, [socket, nickname]);
 
-  return { state, socket, handleCreateMessage };
+  const handleTyping = useCallback(
+    (isTyping: boolean) => socket?.send(
+      createAction({
+        type: isTyping
+          ? ActionTypes.TYPING
+          : ActionTypes.STOP_TYPING,
+        payload: { username: nickname }
+      })
+    ),
+    [socket, nickname]
+  );
+
+  return { state, handleCreateMessage, handleTyping };
 };
