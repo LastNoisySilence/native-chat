@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const MessageInput: FC<Props> = ({ onEnter, onTyping, className = '' }) => {
-  const { value: message, handleChange, handleEnterDown } = useInput(onEnter);
+  const { value: message, handleChange, handleEnterDown, handleSetValue } = useInput(onEnter);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const typing = useRef({ lastTyping: 0, isTyping: false });
 
@@ -41,13 +41,18 @@ export const MessageInput: FC<Props> = ({ onEnter, onTyping, className = '' }) =
       <input
         type='text'
         ref={messageInputRef}
-        className='w-full h-full focus:outline-none p-2'
+        className='w-full h-full mr-2 focus:outline-none p-2'
         onChange={handleChange}
         onKeyDown={handleEnterDown}
         onInput={handleInput}
         value={message}
         placeholder='Type here...'
       />
+      <button
+        className='from-gray-200 bg-white px-2'
+        onClick={handleSetValue}>
+        Send
+      </button>
     </footer>
   )
 };

@@ -8,14 +8,18 @@ export const useInput = (onEnter: (value: string) => void) => {
     []
   );
 
-  const handleEnterDown = useCallback(({ key }) => {
-    if (key === 'Enter') {
-      if ((value || '').trim()) {
-        onEnter(value);
-        setValue('');
-      }
+  const handleSetValue = useCallback(() => {
+    if ((value || '').trim()) {
+      onEnter(value);
+      setValue('');
     }
   }, [onEnter, value]);
 
-  return { value, handleChange, handleEnterDown };
+  const handleEnterDown = useCallback(({ key }) => {
+    if (key === 'Enter') {
+      handleSetValue();
+    }
+  }, [handleSetValue]);
+
+  return { value, handleChange, handleEnterDown, handleSetValue };
 };

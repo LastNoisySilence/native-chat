@@ -18,7 +18,7 @@ export const NicknameScreen: FC<Props> = ({ onEnter }) => {
     [nickNameInputRef]
   );
 
-  const { value: nickname, handleChange, handleEnterDown } = useInput(onEnter);
+  const { value: nickname, handleChange, handleEnterDown, handleSetValue } = useInput(onEnter);
 
   return (
     <div
@@ -26,15 +26,20 @@ export const NicknameScreen: FC<Props> = ({ onEnter }) => {
       onClick={handleNicknameInputFocus}
     >
       <div>
-        <h4 className='text-white mb-2'>What's your nickname?</h4>
+        <h4 className='text-white text-center mb-2'>What's your nickname?</h4>
         <input
           type='text'
           ref={nickNameInputRef}
-          className='text-center text-lg focus:outline-none'
+          className='text-center w-full mb-2 text-lg focus:outline-none'
           value={nickname}
           onChange={handleChange}
           onKeyDown={handleEnterDown}
         />
+        <button
+          className='from-gray-200 w-full bg-white px-2'
+          onClick={handleSetValue}>
+          Join
+        </button>
       </div>
     </div>
   )
