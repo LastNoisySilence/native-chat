@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/native-chat/static/css/main.3fb6149c.chunk.css",
+    "main.js": "/native-chat/static/js/main.0a3bbb77.chunk.js",
+    "main.js.map": "/native-chat/static/js/main.0a3bbb77.chunk.js.map",
+    "runtime-main.js": "/native-chat/static/js/runtime-main.e4462b07.js",
+    "runtime-main.js.map": "/native-chat/static/js/runtime-main.e4462b07.js.map",
+    "static/js/2.57cd3c55.chunk.js": "/native-chat/static/js/2.57cd3c55.chunk.js",
+    "static/js/2.57cd3c55.chunk.js.map": "/native-chat/static/js/2.57cd3c55.chunk.js.map",
+    "index.html": "/native-chat/index.html",
+    "static/css/main.3fb6149c.chunk.css.map": "/native-chat/static/css/main.3fb6149c.chunk.css.map",
+    "static/js/2.57cd3c55.chunk.js.LICENSE.txt": "/native-chat/static/js/2.57cd3c55.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e4462b07.js",
+    "static/js/2.57cd3c55.chunk.js",
+    "static/css/main.3fb6149c.chunk.css",
+    "static/js/main.0a3bbb77.chunk.js"
+  ]
+}
