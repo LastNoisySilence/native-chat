@@ -15,7 +15,7 @@ export const MessageInput: FC<Props> = ({ onEnter, onTyping, className = '' }) =
 
   useLayoutEffect(
     () => messageInputRef.current?.focus(),
-    [messageInputRef]
+    []
   );
 
   const handleInput = useCallback(() => {

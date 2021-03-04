@@ -10,12 +10,12 @@ export const NicknameScreen: FC<Props> = ({ onEnter }) => {
   const nickNameInputRef = useRef<HTMLInputElement>(null);
 
   useLayoutEffect(() => {
-    nickNameInputRef.current!.focus();
-  }, [nickNameInputRef]);
+    nickNameInputRef.current?.focus();
+  }, []);
 
   const handleNicknameInputFocus = useCallback(
-    () => nickNameInputRef.current!.focus(),
-    [nickNameInputRef]
+    () => nickNameInputRef.current?.focus(),
+    []
   );
 
   const { value: nickname, handleChange, handleEnterDown, handleSetValue } = useInput(onEnter);

@@ -9,8 +9,8 @@ export const MessageList: FC<Props> = ({ messages, className = '' }) => {
   const lastMessageRef = useRef<HTMLLIElement>(null);
 
   useLayoutEffect(() => {
-    lastMessageRef.current!.scrollIntoView({ behavior: 'smooth' });
-  }, [lastMessageRef, messages]);
+    lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
     <ul className={`flex flex-col w-full p-2 ${className}`}>
